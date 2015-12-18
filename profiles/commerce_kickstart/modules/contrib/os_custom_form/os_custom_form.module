@@ -1,0 +1,529 @@
+<?php
+define('ADDCOURSE_BASE_PATH', 'addcourse');
+define('ADDCOURSE_IMAGE_PATH', 'system/files/images/addcourse');
+define('ADDCOURSE_TEMPLATE_PATH', 'templates/addcourse');
+define('ADDCOURSE_FILE_PATH', 'includes/addcourse.inc');
+
+define('ADDCOURSEI_BASE_PATH', 'addcoursei');
+define('ADDCOURSEI_IMAGE_PATH', 'system/files/images/addcoursei');
+define('ADDCOURSEI_TEMPLATE_PATH', 'templates/addcoursei');
+define('ADDCOURSEI_FILE_PATH', 'includes/addcoursei.inc');
+
+define('OS_CUSTOM_FORM_MODULE', 'os_custom_form');
+
+/**
+ * Implements os_custom_form_hook_menu().
+ *
+ * @return mixed
+ */
+function os_custom_form_menu() {
+  $items[ADDCOURSE_BASE_PATH] = array(
+    'title' => 'eLearning & Business Training Company',
+    'page callback' => '_os_custom_form_addcourse',
+    'access arguments' => array('access content'),
+    'file' => ADDCOURSE_FILE_PATH,
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items[ADDCOURSEI_BASE_PATH] = array(
+    'title' => 'eLearning & Business Training Company',
+    'page callback' => '_os_custom_form_addcoursei',
+    'access arguments' => array('access content'),
+    'file' => ADDCOURSEI_FILE_PATH,
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['os_ajax/os_custom_form'] = array(
+    'title' => 'Add Course',
+    'page callback' => 'os_custom_form_commerce_product_ui_product_form',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK
+  );
+  return $items;
+}
+/**
+ * Implements os_custom_form_hook_theme().
+ *
+ * @param $existing
+ * @param $type
+ * @param $theme
+ * @param $path
+ * @return array
+ */
+function os_custom_form_theme($existing, $type, $theme, $path) {
+  return array(
+    'os_custom_form_addcourse' => array(
+      'template' => 'addcourse',
+      'path' => drupal_get_path('module', OS_CUSTOM_FORM_MODULE) . '/' . ADDCOURSE_TEMPLATE_PATH,
+      'variables' => array(
+        'children' => array(),
+        'section_id' => array(),
+        'section_classes' => array()
+      ),
+    ),
+    'os_custom_form_addcourse_header' => array(
+      'template' => 'addcourse_header',
+      '#weight' => 1,
+      'path' => drupal_get_path('module', OS_CUSTOM_FORM_MODULE) . '/' . ADDCOURSE_TEMPLATE_PATH,
+      'variables' => array(
+        'class' => NULL
+      ),
+    ),
+    'os_custom_form_addcourse_tabs' => array(
+      'template' => 'addcourse_tabs',
+      '#weight' => 1,
+      'path' => drupal_get_path('module', OS_CUSTOM_FORM_MODULE) . '/' . ADDCOURSE_TEMPLATE_PATH,
+      'variables' => array(
+        'class' => NULL
+      ),
+    ),
+    'os_custom_form_addcourse_forms' => array(
+      'template' => 'addcourse_forms',
+      '#weight' => 4,
+      'path' => drupal_get_path('module', OS_CUSTOM_FORM_MODULE) . '/' . ADDCOURSE_TEMPLATE_PATH,
+      'variables' => array(
+        'class' => NULL,
+        'addcourse_forms' => array(),
+      ),
+    ),
+    'os_custom_form_addcourse_download' => array(
+      'template' => 'addcourse_download',
+      '#weight' => 6,
+      'path' => drupal_get_path('module', OS_CUSTOM_FORM_MODULE) . '/' . ADDCOURSE_TEMPLATE_PATH,
+      'variables' => array(
+        'class' => NULL,
+        'team_members' => array()
+      ),
+    ),
+    'os_custom_form_addcourse_footer' => array(
+      'template' => 'addcourse_footer',
+      '#weight' => 7,
+      'path' => drupal_get_path('module', OS_CUSTOM_FORM_MODULE) . '/' . ADDCOURSE_TEMPLATE_PATH,
+      'variables' => array(
+        'class' => NULL
+      ),
+    ),
+    'os_custom_form_addcoursei' => array(
+      'template' => 'addcoursei',
+      'path' => drupal_get_path('module', OS_CUSTOM_FORM_MODULE) . '/' . ADDCOURSEI_TEMPLATE_PATH,
+      'variables' => array(
+        'children' => array(),
+        'section_id' => array()
+      ),
+    ),
+  );
+}
+//// trying to theme a new element
+function os_custom_form_element_info(){
+    $new_field = array(
+        '#input' => array('value' => TRUE),
+        '#process' => array('new_field_function'),
+        '#element_validate' => array('new_field_validate'),
+        '#pre_render' => array('new_field_pre_render'),
+        '#os_custom_attribute' => array('new_field_test'),
+        '#theme' => array('os_custom_form'),
+    );
+    return $new_field;    
+}
+function theme_os_custom_form_field($element){
+    $output .= 'div class="new-field"> . t("New Field!") . </div>';
+    $output .= '<div class="value">' . $element['#added_custom_value'] . '</div>';
+    
+    return $output;
+}
+function os_custom_theme(){
+    return array(
+        'os_custom_field' => array(
+            'arguments' => array('element' => NULL)
+        ),
+    );
+}
+
+function os_custom_form_commerce_product_ui_product_form_alter(&$form, &$form_state){
+    $form['field_example'] = array(
+        //'#type' => 'new_field',
+        '#title' => t('new_field Tester'),
+        '#default_value' => t('It\'s Here!'),
+        '#element_validate' => array('os_custom_form_validate'),
+        '#os_custom_form_attribute' => 'Extra Add To Change hook_element_info info',
+    );
+}
+// modify edit values from form
+function form_type_new_field_value($element, $edit = FALSE){
+    if(func_num_args() == 1) {
+        return $element['#default_value'];
+    }
+    $edit = "hey!, I just edited a form value";
+    return $edit;
+} 
+//   $is_course_or_bundle = $form['#bundle'] == ProductType::Course || $form['#bundle'] == ProductType::Bundle;
+//   if (!$is_course_or_bundle) {
+//     return;
+//   }
+
+//   if (!user_access('administer commerce_product entities')) {
+//     $form['field_opensesame_description']['#access'] = FALSE;
+//     $form['field_os_description_override']['#access'] = FALSE;
+//     $form['field_featured_in']['#access'] = FALSE;
+//     $form['preview_video']['#access'] = FALSE;
+
+//     //TODO remove the below access sets when we switch to using the new accreditation fields
+//     $form['accrediting_body']['#access'] = TRUE;
+//     $form['accreditation_credit']['#access'] = TRUE;
+//     $form['accreditation_credit_label']['#access'] = TRUE;
+//     $form['accreditation_note']['#access'] = TRUE;
+//   }
+//   $form['#bundle'] = FALSE; // Chris
+//   $form['#validate'][] = 'os_description_user_validation';
+//   $form['#validate'][] = 'os_product_duplication_validator';
+//   $form['#attached']['js'][] = drupal_get_path('theme', 'os2014') . '/js/primaryCategory.js';
+//   $form['#attached']['css'][drupal_get_path('theme', 'os2014') . '/css/addcourse_application.css'] = array('group' => CSS_THEME);
+//   $form['field_primary_subject'][LANGUAGE_NONE]['#required'] = TRUE;
+//   $form['field_date_first_published']['#access'] = FALSE;
+//   $form['field_date_last_updated']['#access'] = FALSE;
+
+
+ //drupal_set_breadcrumb(array());
+//   if ($form['#bundle'] == ProductType::Course) {
+//     $form['#validate'][] = 'os_scorm_package_validation';
+//   }
+
+  //TODO remove when we remove the Expire and Affiliate Opt-in Fields
+//   unset($form['field_expire_seats']);
+//   unset($form['field_affiliate_opt_in']);
+
+  // Remove OS Boost field from the form
+//   $form['field_opensesame_boost']['#access'] = FALSE;
+
+//   if (!empty($form_state['commerce_product']->product_id)) {
+//     drupal_set_title(t('Editing: ') . $form_state['commerce_product']->title);
+//     $form['actions']['submit']['#submit'][] = 'os_custom_redirect_product_form';
+//     if ($form_state['rebuild'] === FALSE) {
+//       $product = EntityFactory::Instance()->LoadProduct($form_state['commerce_product']->product_id);
+//       $disableUpload = $product->SetEditAlerts();
+//       if ($disableUpload) {
+//         $form['field_course_upload']['#disabled'] = TRUE;
+//       }
+//       if ($product->Status() == ProductStatus::Processing) {
+//         $form['title']['#disabled'] = TRUE;
+//       }
+//     }
+//   }
+//   else {
+//     if ($form['#bundle'] == ProductType::Course) {
+//       drupal_set_title(t('Add Course'));
+//     }
+//     else {
+//       drupal_set_title(t('Add Course Bundle'));
+//     }
+//   }
+
+//   foreach (Product::JavascriptFilesForEdit() as $javascriptFile) {
+//     $form['#attached']['js'][] = drupal_get_path('module', $javascriptFile['module']) . $javascriptFile['file'];
+//   }
+
+//   $form['commerce_price'][LANGUAGE_NONE][0]['amount']['#field_prefix'] = '$';
+//   $form['commerce_price'][LANGUAGE_NONE][0]['amount']['#required'] = TRUE;
+//   $form['commerce_price'][LANGUAGE_NONE][0]['#element_validate'][] = 'os_custom_field_widget_validate';
+//   $form['field_donate_lingos'][LANGUAGE_NONE]['#suffix'] = $form['field_donate_lingos'][LANGUAGE_NONE]['#description'];
+//   unset($form['field_donate_lingos'][LANGUAGE_NONE]['#description']);
+
+//   if ($form['sku']['#default_value'] == '') {
+//     $form['sku']['#default_value'] = Guid::NewGuid();
+//   }
+
+//   if ($form['field_bulk_discounts'][LANGUAGE_NONE][0]['field_discount_percentage'][LANGUAGE_NONE][0]['value']['#default_value'] == '') {
+//     $perc = &$form['field_bulk_discounts'][LANGUAGE_NONE];
+//     $perc[0]['field_discount_percentage'][LANGUAGE_NONE][0]['value']['#default_value'] = 15;
+//     $perc[0]['field_minimum_seats'][LANGUAGE_NONE][0]['value']['#default_value'] = 50;
+//     $form_state['field']['field_bulk_discounts'][LANGUAGE_NONE]['entity'][0]->field_discount_percentage = array('und' => array('0' => array('value' => 3)));
+//     $form_state['field']['field_bulk_discounts'][LANGUAGE_NONE]['entity'][0]->field_minimum_seats = array('und' => array('0' => array('value' => 10)));
+//     $perc[0]['_weight']['#value'] = 0;
+
+//     $perc[1] = $perc[0];
+//     $perc[2] = $perc[0];
+//     $perc[3] = $perc[0];
+//     $perc[4] = $perc[0];
+//     $form_state['field']['field_bulk_discounts'][LANGUAGE_NONE]['entity'][1] = clone $form_state['field']['field_bulk_discounts'][LANGUAGE_NONE]['entity'][0];
+//     $form_state['field']['field_bulk_discounts'][LANGUAGE_NONE]['entity'][2] = clone $form_state['field']['field_bulk_discounts'][LANGUAGE_NONE]['entity'][0];
+//     $form_state['field']['field_bulk_discounts'][LANGUAGE_NONE]['entity'][3] = clone $form_state['field']['field_bulk_discounts'][LANGUAGE_NONE]['entity'][0];
+//     $form_state['field']['field_bulk_discounts'][LANGUAGE_NONE]['entity'][4] = clone $form_state['field']['field_bulk_discounts'][LANGUAGE_NONE]['entity'][0];
+
+//     os_set_bulk_discount($perc[1], $form_state['field']['field_bulk_discounts'][LANGUAGE_NONE]['entity'][1], 25, 100, 1);
+//     os_set_bulk_discount($perc[2], $form_state['field']['field_bulk_discounts'][LANGUAGE_NONE]['entity'][2], 40, 500, 2);
+//     os_set_bulk_discount($perc[3], $form_state['field']['field_bulk_discounts'][LANGUAGE_NONE]['entity'][3], 50, 1000, 3);
+//     os_set_bulk_discount($perc[4], $form_state['field']['field_bulk_discounts'][LANGUAGE_NONE]['entity'][4], 75, 5000, 4);
+
+//     $form_state['field']['field_bulk_discounts'][LANGUAGE_NONE]['items_count'] = 4;
+//     $perc['#max_delta'] = 4;
+//     $perc['#max_weight'] = 0;
+//     $perc['add_more']['#limit_validation_errors'][0] = array('field_bulk_discounts');
+//   }
+//   os_setup_bulkDiscountLayout($form);
+
+//   if (isset($product) && is_object($product)) {
+//     $seller = EntityFactory::Instance()->LoadUser($product->UId());
+//   }
+//   else {
+//     global $user;
+//     $seller = EntityFactory::Instance()->LoadUser($user->uid);
+//   }
+//   $seller_percentage = $seller->SellerPercentage();
+
+//   $form['#attached']['js']['var SELLER_PERCENT = ' . $seller_percentage . ';'] = array(
+//     'type' => 'inline',
+//     'scope' => 'header'
+//   );
+
+//   $form['field_bulk_discounts'][LANGUAGE_NONE]['add_more']['#limit_validation_errors'][0] = array('field_bulk_discounts');
+//   $form['actions']['submit']['#value'] = t('Save');
+//   $form['#validate'][] = 'os_custom_product_product_form_validate';
+//   $form['#after_build'] = array('_os_custom_remove_add_another');
+
+// //   $conditions = new SellerConditions($seller->drupalUser);
+// //   $sellerConditions = $conditions->getConditions();
+// //   $keys = array_keys($sellerConditions);
+
+//   $form['field_terms_reference'][LANGUAGE_NONE][] = $conditions->displayCondition($sellerConditions[$keys[0]]);
+//   $form['field_terms_reference']['#weight'] = 390;
+//   $form['actions']['submit']['#submit'][] = 'os_custom_product_terms_submit';
+//   $form['field_description'][LANGUAGE_NONE][0]['#required'] = TRUE;
+// //   $form['field_photo_credit'][LANGUAGE_NONE]['#prefix'] = $form['field_photo_credit'][LANGUAGE_NONE]['#prefix'];
+
+//   // Set OS required field lables, not Drupal required fields
+//   $form['field_learning_obj'][LANGUAGE_NONE]['#required'] = TRUE;
+//   $form['field_commerce_price'][LANGUAGE_NONE]['#required'] = TRUE;
+//   $form['field_package_pricing'][LANGUAGE_NONE]['#required'] = TRUE;
+//   $form['field_unlimited_price'][LANGUAGE_NONE][0]['value']['#required'] = TRUE;
+
+//   $form['#attached']['js'] = array(
+//     'type' => 'file',
+//     'data' => drupal_get_path('theme', 'commerce_kickstart_theme'), '/js/addcourse.js'
+//   );
+
+//   $form['preview_video']['#suffix'] = '<div>
+//                                          <button id="gen-wistia-embed">Generate</button>
+//                                          or paste embed HTML
+//                                        </div>';
+//   $form['field_course_upload'][LANGUAGE_NONE][0]['#description'] = t('OpenSesame supports SCORM 1.2 and 2004. To upload a video or AICC file, please contact: Content@OpenSesame.com');
+
+//   $form['course_title'] = array(
+//     '#title' => t('Course Title'),
+//     '#ajax' => array(
+//       '#prefix' => '<div id="error_message">',
+//       '#suffix' => '</div>',
+//       'event' => 'keyup',
+//       'callback' => 'course_ajax_upload',
+//       'wrapper' => 'replace-textfield-div',
+//     ),
+//     '#prefix' => '<div class="form-content hide" id="title">',
+//     '#suffix' => '</div>',
+//     '#weight' => 0,
+//     'contents' => array(
+//       'title' => $form['title'],
+//     ),
+//   );
+
+//   $form['uploads'] = array(
+//     '#prefix' => '<div class="form-content" id="uploads">',
+//     'contents' => array(
+//       'field_course_upload' => $form['field_course_upload'],
+//       'field_image_cache' => $form['field_image_cache'],
+//       'field_photo_credit' => $form['field_photo_credit'],
+//       'field_course_preview' => $form['field_course_preview'],
+//       'preview_video' => $form['preview_video'],
+//     ),
+//     '#suffix' => '</div>',
+//     '#weight' => 1,
+
+//   );
+
+//   $form['basics'] = array(
+//     '#prefix' => '<div class="form-content hide" id="basics">',
+//     'contents' => array(
+//       'field_description' => $form['field_description'],
+//       'field_learning_obj' => $form['field_learning_obj'],
+//       'field_primary_subject' => $form['field_primary_subject'],
+//       'field_course_subjects_taxonomy' => $form['field_course_subjects_taxonomy'],
+//     ),
+//     '#suffix' => '</div>',
+//     '#weight' => 2,
+//   );
+
+//   $form['pricing'] = array(
+//     '#prefix' => '<div class="form-content hide" id="pricing">',
+//     'contents' => array(
+//       'field_length' => $form['field_length'],
+//       'commerce_price' => $form['commerce_price'],
+//       'field_package_pricing' => $form['field_package_pricing'],
+//       'field_bulk_discounts' => $form['field_bulk_discounts'],
+//       'field_unlimited_price' => $form['field_unlimited_price'],
+//     ),
+//     '#suffix' => '</div>',
+//     '#weight' => 3,
+//   );
+//   $form['accreditation_credit'][LANGUAGE_NONE]['#cardinality'] = 1;
+//   $form['accreditation_credit_label'][LANGUAGE_NONE]['#cardinality'] = 1;
+//   $form['details'] = array(
+//     '#prefix' => '<div class="form-content hide" id="details">',
+//     'contents' => array(
+//       'field_content_language' => $form['field_content_language'],
+//       'field_interface_language' => $form['field_interface_language'],
+//       'field_course_features' => $form['field_course_features'],
+//       'field_address_jurisdiction' => $form['field_address_jurisdiction'],
+// //      'accreditation_credit_label' => $form['accreditation_credit_label'],
+// //      'accrediting_body' => $form['accrediting_body'],
+// //      'accreditation_credit' => $form['accreditation_credit'],
+// //      'field_accredited_by' => $form['field_accredited_by'],
+//       'accreditation' => array(
+//         'accreditation_credit' => $form['accreditation_credit'],
+//         'accreditation_credit_label' => $form['accreditation_credit_label'],
+//         'accrediting_body' => $form['accrediting_body'],
+//         'field_accredited_by' => $form['field_accredited_by'],
+//         '#prefix' => '<div class="inner-form-content form-item form-type-textfield" id="accreditation"><label>Accreditations</label>',
+//         '#suffix' => '</div>',
+//         '#weight' => 7000,
+//       ),
+//     ),
+//     '#suffix' => '</div>',
+//     '#weight' => 4,
+//   );
+
+//   $form['requirements'] = array(
+//     '#prefix' => '<div class="form-content hide" id="system-requirements">',
+//     'contents' => array(
+//       'field_supported_browsers' => $form['field_supported_browsers'],
+//       'field_system_requirements' => $form['field_system_requirements'],
+// //      'field_other_requirements' => $form['field_other_requirements'],
+//     ),
+//     '#suffix' => '</div>',
+//     '#weight' => 5,
+//   );
+// //  if(!isset($form['title']['#default_value'])){
+// //    $placeHolder = print('not here');
+// //  }else{
+// //    $placeHolder = $form['title']['#default_value'];
+// //  }
+//   $form['review'] = array(
+
+//     '#prefix' => '<div class="form-content hide" id="review">',
+//     'contents' => array(
+//       'field_opensesame_description' => $form['field_opensesame_description'],
+// //      'field_minimum_width' => $form['field_minimum_width'],
+// //      'field_minimum_height' => $form['field_minimum_height'],
+//     ),
+//     '#suffix' => '</div>',
+//     '#weight' => 6,
+//   );
+
+//   $form['os_admin'] = array(
+//     '#prefix' => '<div class="form-content hide" id="os-admin">',
+//     '#suffix' => '</div>',
+//     '#weight' => 7,
+//     '#required' => TRUE,
+//     '#os_conditional_required' => TRUE,
+//     'contents' => array(
+//       'hidden_fields' => array(
+//         'sku' => $form['sku'],
+//         'status' => $form['status'],
+//         'field_product_type' => $form['field_product_type'],
+//         'field_country_jurisdiction' => $form['field_country_jurisdiction'],
+//         'field_external_course_id' => $form['field_external_course_id'],
+//         'field_external_course_provider' => $form['field_external_course_provider'],
+//         'field_preview_length' => $form['field_preview_length'],
+//         'field_guid' => $form['field_guid'],
+//         'field_package_status' => $form['field_package_status'],
+//         'field_seller_identifier' => $form['field_seller_identifier'],
+//         'field_required_application_frame' => $form['field_required_application_frame'],
+//         'field_intended_audience' => $form['field_intended_audience'],
+//         'field_donate_lingos' => $form['field_donate_lingos'],
+//         'field_include_unlimited' => $form['field_include_unlimited'],
+//         'field_previous_experience' => $form['field_previous_experience'],
+//         'accreditation_note' => $form['accreditation_note'],
+//       ),
+//       'top_content' => array(
+//         '#os_conditional_required' => TRUE,
+//         '#attributes' => array(
+//           'class' => 'form-required',
+//         ),
+//         'field_opensesame_description' => $form['field_opensesame_description'],
+//         '#weight' => -1,
+//       ),
+//       'field_os_description_override' => $form['field_os_description_override'],
+//       //'field_manage_images_frontend' => $form['field_manage_images_frontend'],
+//       'field_minimum_width' => $form['field_minimum_width'],
+//       'field_minimum_height' => $form['field_minimum_height'],
+//     ),
+//   );
+
+// //  $form['accreditation'] = array(
+// //    'contents' => array(
+// //      'accrediting_body' => $form['accrediting_body'],
+// //      'accreditation_credit' => $form['accreditation_credit'],
+// //      'accreditation_credit_label' => $form['accreditation_credit_label'],
+// //    ),
+// //    '#prefix' => '<div class="form-content hide" id="accreditation">',
+// //    '#suffix' => '</div>',
+// //    '#weight' => 7,
+// //  );
+
+//   unset(
+//     $form['title'],
+//     $form['field_course_upload'],
+//     $form['field_image_cache'],
+//     $form['field_photo_credit'],
+//     $form['field_course_preview'],
+//     $form['field_preview_length'],
+//     $form['field_donate_lingos'],
+//     $form['field_description'],
+//     $form['field_learning_obj'],
+//     $form['field_primary_subject'],
+//     $form['field_course_subjects_taxonomy'],
+//     $form['field_commerce_price'],
+//     $form['field_package_pricing'],
+//     $form['field_bulk_discounts'],
+//     $form['field_unlimited_price'],
+//     $form['field_content_language'],
+//     $form['field_interface_language'],
+//     $form['field_course_features'],
+//     $form['field_address_jurisdiction'],
+//     $form['field_accreditation'],
+//     $form['field_supported_browsers'],
+//     $form['field_opensesame_description'],
+//     $form['sku'],
+//     $form['status'],
+//     $form['field_product_type'],
+//     $form['field_country_jurisdiction'],
+//     $form['field_external_course_id'],
+//     $form['field_external_course_provider'],
+//     $form['field_guid'],
+//     $form['field_package_status'],
+//     $form['field_seller_identifier'],
+//     $form['preview_video'],
+//     $form['field_system_requirements'],
+//     $form['accrediting_body'],
+//     $form['accreditation_credit'],
+//     $form['accreditation_credit_label'],
+//     $form['field_manage_images_frontend'],
+//     $form['field_minimum_width'],
+//     $form['field_minimum_height'],
+//     $form['field_required_application_frame'],
+//     $form['field_os_description_override'],
+//     $form['field_intended_audience'],
+//     $form['commerce_price'],
+//     $form['field_donate_lingos'],
+//     $form['field_include_unlimited'],
+//     $form['field_length'],
+//     $form['field_previous_experience'],
+//     $form['field_accredited_by'],
+//     $form['accreditation_note']
+//   );
+// }
+// function course_ajax_upload($form, &$form_state){
+//   $commands = array();
+//   $commands[] = ajax_command_html('#error_message', render($form['title']));
+//   $commands[] = array(
+//     'command' => 'saveField',
+//     'selectedValue' => $form_state['values']['title'],
+//   );
+//   return array('#type' => 'ajax', '#commands' => $commands);
+// }

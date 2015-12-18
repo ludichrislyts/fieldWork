@@ -1,0 +1,78 @@
+<?php
+function aaTest_commerce_product_ui_product_form_alter(&$form, &$form_state){
+	// render($form);
+	// drupal_set_message('hi');
+	// $form['field_testing_test'] = array(
+		
+	// 	'#prefix' => '<div class="does-this-even-show-up">',
+	// 	'#suffix' => '</div>',
+	// 	'contents' => array(
+	// 		'field_testing' => $form['field_testing'],
+	// 		'#prefix' => '<input type="checkbox"',
+	// 		'#suffix' => '/>',		
+	// 	),
+	// );
+	unset($form['field_testing']);
+	$form['field_testing'] = $form['field_testing'];
+}
+define('ADDPRODUCT_BASE_PATH', 'aaTest/addProduct');
+define('ADDPRODUCT_TEMPLATE_PATH', 'templates');
+function _aaTest_addProduct() {
+  return array(
+    '#theme_wrappers' => array('aaTest_addProduct'),
+    '#section_class' => 'm-addProduct',
+    '#section_id' => 'addProduct',
+    '#attached' => array(
+      'js' => array(
+        drupal_get_path('module', 'aaTest') . "/js/aaTest.js",
+      )
+    ),
+    'addProduct_main' => _addProduct_main_tpl(),
+  );
+}
+
+function _addProduct_main_tpl(){
+	return array(
+		'#theme' => 'aaTest_addProduct_main',
+		'#class' => 'm-addProduct-main',
+	);
+}
+function aaTest_menu(){
+	$items = array();
+	$items[ADDPRODUCT_BASE_PATH] = array(
+		'title' => 'Test Form Alter',
+		'page callback'=> '_aaTest_addProduct', // line 30
+		'access callback' => TRUE,
+		'type' => MENU_NORMAL_ITEM,
+	);
+	$items['aaTest_saved_product'] = array(
+		'title' => 'Saved',
+		'page callback' => 'saved_product_success',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+	return $items;
+}
+
+
+function aaTest_theme() {
+	return array(
+		'aaTest_addProduct' => array(
+			'template' => 'addProduct',
+			'path' => drupal_get_path('module', 'aaTest') . '/' . ADDPRODUCT_TEMPLATE_PATH,
+			'variables' => array(
+				'children' => array(),
+				'section_id' => array(),
+				'section_classes' => array()
+			),
+		),
+		'aaTest_addProduct_main' => array(
+			'template' => 'addProduct_main',
+			'#weight' => 1,
+			'path' => drupal_get_path('module', 'aaTest') . "/" . ADDPRODUCT_TEMPLATE_PATH,
+			'variables' => array(
+				'class' => 'm-addProduct-main',
+			),
+		),
+	);
+}

@@ -1,0 +1,4 @@
+name = Custom Forms
+description = Module to make a custom form
+package = OpenSesame Copy
+core = 7.x

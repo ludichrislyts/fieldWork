@@ -1,0 +1,198 @@
+.m-addcourse {
+}
+
+#uploads, #basics, #pricing, #details, #system-requirements, #review  {
+  padding: 2em 1em;
+}
+
+.m-row-addcourse-header{
+  margin: 2em 10%;
+  position: relative;
+  .hide {
+    display: none;
+  }
+  .title-required-field {
+    box-sizing: border-box;
+    display: inline-block;
+    vertical-align: bottom;
+    width: 20%;
+    font-size: .9em;
+    color: $medium-gray;
+  }
+  .addcourse-title-container {
+    box-sizing: border-box;
+    display: inline-block;
+    vertical-align: middle;
+    width: 45%;
+    .course-text {
+      color: $medium-gray;
+      font-size: 1em;
+      padding-bottom: .3em;
+    }
+    .addcourse-title, .addcourse-title-edit {
+      float: left;
+      font-size: 2em;
+      width: 95%;
+      box-sizing: border-box;
+      padding-bottom: .3em;
+    }
+    .addcourse-pencil-icon {
+      float: left;
+      background-color: $medium-gray;
+      width: 3%;
+      height: 1em;
+      box-sizing: border-box;
+    }
+    .course-publish {
+      font-size: 1em;
+      color: $medium-gray;
+      display: block;
+      padding-bottom: .3em;
+    }
+  }
+  .addcourse-submit-preview {
+    box-sizing: border-box;
+    display: inline-block;
+    width: 30%;
+    .m-btn-orange {
+      position: absolute;
+      top: 1.5em;
+      right: 0;
+    }
+    .m-btn-black {
+      border-color: $near-black;
+      color: $near-black;
+      top: 1.5em;
+      right: 8em;
+      &:hover {
+        background-color: $near-black;
+        color: $primary-background-color-light;
+      }
+    }
+    .addcourse-auto-save {
+      display: block;
+      float: right;
+      color: $medium-gray;
+      margin-top: 1em;
+      @include position(absolute, null 0 1em null);
+      position: absolute;
+      right: 0;
+      bottom: 1em;
+    }
+    .addcourse-the-date {
+      display: block;
+      float: right;
+      color: $medium-gray;
+      position: absolute;
+      right: 0;
+      bottom: 0;
+    }
+  }
+}
+
+.m-row-addcourse-content {
+  padding: 0 10% 2em 10%;
+  @include row;
+  .m-addcourse-tabs {
+    float: left;
+    box-sizing: border-box;
+    width: 20%;
+    box-sizing: border-box;
+  }
+  .m-addcourse-forms {
+    float: left;
+    box-sizing: border-box;
+    width: 80%;
+    border: 1px solid $divider-color-dark;
+    min-height: 800px;
+    box-sizing: border-box;
+    #title {
+      display: none;
+    }
+    .hide {
+      display: none;
+    }
+  }
+}
+
+.addcourse-vertical-tabs-container {
+  margin-bottom: 1.5em;
+  overflow: visible;
+}
+
+.addcourse-vertical-tabs {
+  color: $near-black;
+  display: block;
+  font-weight: bold;
+  margin-right: -1px;
+  border: 1px solid $light-gray;
+  @include transition(all 0.2s ease);
+  padding: 1.5em 1.3em 1.5em 3em;
+  margin-bottom: 1em;
+  background-color: $primary-background-color;
+  border-bottom-left-radius: $tab-border-radius;
+  border-top-left-radius: $tab-border-radius;
+  border-color: $divider-color;
+  cursor: pointer;
+  &.is-active {
+    border: 1px solid $divider-color-dark;
+    border-right: none;
+    margin-right: -.1em;
+    margin-left: -.5em;
+    padding-left: 2em;
+    position: relative;
+    background-color: $primary-background-color-light;
+  }
+  &.t5 {
+    .tab-name {
+      max-width: 7em;
+    }
+  }
+  .tab-content-wrapper {
+    margin-right: auto;
+    margin-left: auto;
+    a {
+      color: $near-black;
+    }
+    .hide {
+      display: none;
+    }
+    .tab-num-wrap {
+      font-size: 1.3em;
+      background-color: $near-black;
+      color: $white;
+      height: 1.5em;
+      width: 1.5em;
+      border-radius: 1em;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: .5em;
+      text-align: center;
+      .tab-num {
+        padding: .3em;
+        margin-top: -.3em;
+      }
+    }
+    .tab-name {
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .tab-num-complete {
+      background-color: $green;
+    }
+  }
+}
+
+.m-row-addcourse-footer {
+  padding: 2em 10%;
+  .previous-button{
+    margin-left: 15%;
+    margin-right: 56%;
+  }
+}
+
+#accreditation {
+  .form-item-accreditation-credit-und-0-value{
+    width: 3em;
+  }
+}
