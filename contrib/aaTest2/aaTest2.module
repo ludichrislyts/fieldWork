@@ -1,0 +1,304 @@
+<?php
+define('ADDPRODUCT_BASE_PATH', 'aaTest2/addProduct');
+define('ADDPRODUCT_TEMPLATE_PATH', 'templates');
+function _aaTest2_addProduct() {
+  return array(
+    '#theme_wrappers' => array('aaTest2_addProduct'),
+    '#section_class' => 'm-addProduct',
+    '#section_id' => 'addProduct',
+    '#attached' => array(
+      'js' => array(
+        drupal_get_path('module', 'aaTest2') . "/js/aaTest2.js",
+      )
+    ),
+    'addProduct_main' => _addProduct_main_tpl(),
+  );
+}
+
+function _addProduct_main_tpl(){
+	return array(
+		'#theme' => 'aaTest2_addProduct_main',
+		'#class' => 'm-addProduct-main',
+	);
+}
+function aaTest2_field_info() {
+  return array(
+    // We name our field as the associative name of the array.
+    'aaTest2_my_field' => array(
+      'label' => t('My Field Test Label'),
+      'description' => t('Demonstrates me trying to add a field'),
+      'default_widget' => 'textfield',
+      'default_formatter' => 'aaTest2_simple_text',
+    ),
+  );
+}
+
+
+function aaTest2_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
+  foreach ($items as $delta => $item) {
+    if (!empty($item['my_field'])) {
+      if (!preg_match('@^#[0-9a-f]{6}$@', $item['my_field'])) {
+        $errors[$field['field_name']][$langcode][$delta][] = array(
+          'error' => 'aaTest2_invalid',
+          'message' => t('Color must be in the HTML format #abcdef.'),
+        );
+      }
+    }
+  }
+}
+function aaTest2_field_is_empty($item, $field) {
+  return empty($item['my_field']);
+}
+function aaTest2_field_formatter_info() {
+  return array(
+    // This formatter just displays the hex value in the color indicated.
+    'aaTest2_simple_text' => array(
+      'label' => t('Simple text-based formatter'),
+      'field types' => array('aaTest2_my_field'),
+    ),
+    // This formatter changes the background color of the content region.
+    'aaTest2_color_background' => array(
+      'label' => t('Change the background of the output text'),
+      'field types' => array('aaTest2_my_field'),
+    ),
+  );
+}
+function aaTest2_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+
+  switch ($display['type']) {
+    // This formatter simply outputs the field as text and with a color.
+    case 'aaTest2_simple_text':
+      foreach ($items as $delta => $item) {
+        $element[$delta] = array(
+          // We create a render array to produce the desired markup,
+          // "<p style="color: #hexcolor">The color code ... #hexcolor</p>".
+          // See theme_html_tag().
+          '#type' => 'html_tag',
+          '#tag' => 'p',
+          '#attributes' => array(
+            'style' => 'color: ' . $item['my_field'],
+          ),
+          '#value' => t('The color code in this field is @code', array('@code' => $item['my_field'])),
+        );
+      }
+      break;
+
+    // This formatter adds css to the page changing the '.region-content' area's
+    // background color. If there are many fields, the last one will win.
+    case 'aaTest2_color_background':
+      foreach ($items as $delta => $item) {
+        $element[$delta] = array(
+          '#type' => 'html_tag',
+          '#tag' => 'p',
+          '#value' => t('The content area color has been changed to @code', array('@code' => $item['my_field'])),
+          '#attached' => array(
+            'css' => array(
+              array(
+                'data' => 'div.region-content { background-color:' . $item['my_field'] . ';}',
+                'type' => 'inline',
+              ),
+            ),
+          ),
+        );
+      }
+      break;
+  }
+
+  return $element;
+}
+function aaTest2_field_widget_info() {
+  return array(
+    'aaTest2_text' => array(
+      'label' => t('my_field value as #ffffff'),
+      'field types' => array('aaTest2_my_field'),
+    ),
+    'aaTest2_3text' => array(
+      'label' => t('my_field text field'),
+      'field types' => array('aaTest2_my_field'),
+    ),
+    'aaTest2_colorpicker' => array(
+      'label' => t('Color Picker'),
+      'field types' => array('aaTest2_my_field'),
+    ),
+  );
+}
+function aaTest2_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $value = isset($items[$delta]['my_field']) ? $items[$delta]['my_field'] : '';
+
+  $widget = $element;
+  $widget['#delta'] = $delta;
+
+  switch ($instance['widget']['type']) {
+
+    case 'aaTest2_colorpicker':
+      $widget += array(
+        '#suffix' => '<div class="field-example-colorpicker"></div>',
+        '#attributes' => array('class' => array('edit-field-example-colorpicker')),
+        '#attached' => array(
+          // Add Farbtastic color picker.
+          'library' => array(
+            array('system', 'farbtastic'),
+          ),
+          // Add javascript to trigger the colorpicker.
+          'js' => array(drupal_get_path('module', 'aaTest2') . '/aaTest2.js'),
+        ),
+      );
+      // DELIBERATE fall-through: From here on the aaTest2_text and
+      // aaTest2_colorpicker are exactly the same.
+    case 'aaTest2_text':
+      $widget += array(
+        '#type' => 'textfield',
+        '#default_value' => $value,
+        // Allow a slightly larger size that the field length to allow for some
+        // configurations where all characters won't fit in input field.
+        '#size' => 7,
+        '#maxlength' => 7,
+      );
+      break;
+
+    case 'aaTest2_3text':
+      // Convert my_field value into r, g, and b for #default_value.
+      if (!empty($value)) {
+        preg_match_all('@..@', substr($value, 1), $match);
+      }
+      else {
+        $match = array(array());
+      }
+
+      // Make this a fieldset with the three text fields.
+      $widget += array(
+        '#type' => 'fieldset',
+        '#element_validate' => array('aaTest2_3text_validate'),
+
+        // #delta is set so that the validation function will be able
+        // to access external value information which otherwise would be
+        // unavailable.
+        '#delta' => $delta,
+
+        '#attached' => array(
+          'css' => array(drupal_get_path('module', 'aaTest2') . '/aaTest2.css'),
+        ),
+      );
+
+      // Create a textfield for saturation values for Red, Green, and Blue.
+      foreach (array('r' => t('Red'), 'g' => t('Green'), 'b' => t('Blue')) as $key => $title) {
+        $widget[$key] = array(
+          '#type' => 'textfield',
+          '#title' => $title,
+          '#size' => 2,
+          '#default_value' => array_shift($match[0]),
+          '#attributes' => array('class' => array('my_field-entry')),
+          '#description' => t('The 2-digit hexadecimal representation of @color saturation, like "a1" or "ff"', array('@color' => $title)),
+        );
+        // Since Form API doesn't allow a fieldset to be required, we
+        // have to require each field element individually.
+        if ($instance['required'] == 1) {
+          $widget[$key]['#required'] = 1;
+        }
+      }
+      break;
+
+  }
+
+  $element['my_field'] = $widget;
+  return $element;
+}
+function aaTest2_3text_validate($element, &$form_state) {
+  // @todo: Isn't there a better way to find out which element?
+  $delta = $element['#delta'];
+  $field = $form_state['field'][$element['#field_name']][$element['#language']]['field'];
+  $field_name = $field['field_name'];
+  if (isset($form_state['values'][$field_name][$element['#language']][$delta]['my_field'])) {
+    $values = $form_state['values'][$field_name][$element['#language']][$delta]['my_field'];
+    foreach (array('r', 'g', 'b') as $colorfield) {
+      $colorfield_value = hexdec($values[$colorfield]);
+      // If they left any empty, we'll set the value empty and quit.
+      if (strlen($values[$colorfield]) == 0) {
+        form_set_value($element, '', $form_state);
+        return;
+      }
+      // If they gave us anything that's not hex, reject it.
+      if ((strlen($values[$colorfield]) != 2) || $colorfield_value < 0 || $colorfield_value > 255) {
+        form_error($element[$colorfield], t("Saturation value must be a 2-digit hexadecimal value between 00 and ff."));
+      }
+    }
+
+    $value = sprintf('#%02s%02s%02s', $values['r'], $values['g'], $values['b']);
+    form_set_value($element, $value, $form_state);
+  }
+}
+function aaTest2_field_widget_error($element, $error, $form, &$form_state) {
+  switch ($error['error']) {
+    case 'aaTest2_invalid':
+      form_error($element, $error['message']);
+      break;
+  }
+}
+
+
+/////////////////////////////////////////////////////////////
+function aaTest2_menu(){
+	$items = array();
+	$items[ADDPRODUCT_BASE_PATH] = array(
+		'title' => 'Test Form Alter',
+		'page callback'=> '_aaTest2_addProduct', // line 30
+		'access callback' => TRUE,
+		'type' => MENU_NORMAL_ITEM,
+	);
+	$items['aaTest2_saved_product'] = array(
+		'title' => 'Saved',
+		'page callback' => 'saved_product_success',
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+    $items['examples/aatest2'] = array(
+        'title' => 'aaTest2 Example',
+        'page callback' => '_aatest2_page',
+        'access callback' => TRUE,
+    );
+	return $items;
+}
+function aaTest2_form_commerce_product_ui_product_form_alter(&$form, &$form_state){
+    $form['aaTest2_my_field'] = array(
+        '#type' => 'my_field',
+        '#title' => t('Course Title'),
+        '#prefix' => '<div class="form-content hide" id="title">hello',
+        '#suffix' => '</div>',
+    );
+    unset($form['change_history']);
+    unset($form['field_testing']);
+    //unset($form['field_example_module']);
+    
+}
+function aaTest2_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'form_alter' && isset($implementations['aaTest2'])) {
+    $group = $implementations['aaTest2'];
+    unset($implementations['aaTest2']);
+    $implementations['aaTest2'] = $group;
+  }
+}
+function _aatest2_page() {
+  return t("The aaTest2 an example of Chris Lytsell trying to follow along with a field tutorial. It provides a field composed of an HTML RGB value, like #ff00ff. To use it, add the field to a content type.");
+}
+function aaTest2_theme() {
+	return array(
+		'aaTest2_addProduct' => array(
+			'template' => 'addProduct',
+			'path' => drupal_get_path('module', 'aaTest2') . '/' . ADDPRODUCT_TEMPLATE_PATH,
+			'variables' => array(
+				'children' => array(),
+				'section_id' => array(),
+				'section_classes' => array()
+			),
+		),
+		'aaTest2_addProduct_main' => array(
+			'template' => 'addProduct_main',
+			'#weight' => 1,
+			'path' => drupal_get_path('module', 'aaTest2') . "/" . ADDPRODUCT_TEMPLATE_PATH,
+			'variables' => array(
+				'class' => 'm-addProduct-main',
+			),
+		),
+	);
+}

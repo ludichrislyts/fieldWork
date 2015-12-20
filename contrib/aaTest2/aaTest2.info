@@ -1,0 +1,4 @@
+name = aaTest2
+description = Module to test creating fields
+package = OpenSesame Copy
+core = 7.x

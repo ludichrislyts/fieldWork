@@ -24,9 +24,11 @@
 function field_example_field_schema($field) {
   $columns = array(
     'rgb' => array('type' => 'varchar', 'length' => 7, 'not null' => FALSE),
+    'desc' => array('type' => 'varchar', 'length' => 255, 'not null' => FALSE),
   );
   $indexes = array(
     'rgb' => array('rgb'),
+    'desc' => array('test_desc'),
   );
   return array(
     'columns' => $columns,

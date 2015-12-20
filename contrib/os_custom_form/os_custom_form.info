@@ -1,0 +1,8 @@
+name = Custom Forms Full
+description = Module to make a custom form with all the info from OS
+package = OpenSesame Copy
+core = 7.x
+
+scripts[] = js/addcourse.js
+scripts[] = https://cdn.jsdelivr.net/select2/4.0.1/js/select2.min.js
+scripts[] = ../../domain/javascript/productEdit.js

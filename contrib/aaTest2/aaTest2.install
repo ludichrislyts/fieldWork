@@ -1,0 +1,33 @@
+<?php
+function aaTest2_field_schema($field) {
+    watchdog('start aaTest2_field_schema()', 'We are in!');
+  $columns = array(
+    'my_field' => array('type' => 'varchar', 'length' => 7, 'not null' => FALSE),
+    'desc' => array('type' => 'varchar', 'length' => 255, 'not null' => FALSE),
+  );
+  $indexes = array(
+    'my_field' => array('my_field'),
+    'desc' => array('desc'),
+  );
+  return array(
+    'columns' => $columns,
+    'indexes' => $indexes,
+  );
+}
+function aaTest2_update_7301(){
+    $field = field_info_field('my_field');
+    if(!$field){
+        watchdog('aaTest2', 'fail');        
+    }
+    $instance = array(
+        'field_name' => 'my_field',
+        'entity_type' => 'commerce_product',
+        'label' => 'label',
+        'bundle' => 'product',
+        'settings' => array(
+            'type' => 'aaTest2_colorpicker',
+        ),
+    );
+    field_create_instance($instance);    
+}
+

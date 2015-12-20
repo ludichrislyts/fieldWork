@@ -38,18 +38,9 @@ function commerce_kickstart_theme_preprocess_node(&$variables) {
     $variables['submitted'] = t('By') . ' ' . $variables['name'] . ', ' . $variables['date'];
   }
 }
-function commerce_kickstart_commerce_product_ui_product_form_alter(&$form){
-	// render($form);
-	// drupal_set_message('hi');
-	// $form['field_testing_test'] = array(
-		
-	// 	'#prefix' => '<div class="does-this-even-show-up">',
-	// 	'#suffix' => '</div>',
-	// 	'contents' => array(
-	// 		'field_testing' => $form['field_testing'],
-	// 		'#prefix' => '<input type="checkbox"',
-	// 		'#suffix' => '/>',		
-	// 	),
-	// );
-	$form['field_testing'] = [];
+function commerce_kickstart_theme_commerce_product_ui_product_form(&$form){
+    unset($form['field_testing']);
+    print_r($form);
+    return drupal_render($form);
+    
 }
